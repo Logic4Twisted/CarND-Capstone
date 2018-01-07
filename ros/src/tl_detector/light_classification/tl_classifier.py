@@ -80,5 +80,5 @@ class TLClassifier(object):
                         return TrafficLight.GREEN
                     if light_state == "Yellow" :
                         return TrafficLight.YELLOW
-                else
+                else:
                     return TrafficLight.UNKNOWN
