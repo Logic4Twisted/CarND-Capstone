@@ -24,21 +24,21 @@ class TLClassifier(object):
             #Load a (frozen) Tensorflow model into memory.
             od_graph_def = tf.GraphDef()
             with tf.gfile.GFile(CKPT, 'rb') as fid:
-            serialized_graph = fid.read()
-            od_graph_def.ParseFromString(serialized_graph)
-            tf.import_graph_def(od_graph_def, name='')
+                serialized_graph = fid.read()
+                od_graph_def.ParseFromString(serialized_graph)
+                tf.import_graph_def(od_graph_def, name='')
 
-            # Definite input and output Tensors for detection_graph
-            self.image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+                # Definite input and output Tensors for detection_graph
+                self.image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
             
-            # Each box represents a part of the image where a particular object was detected.
-            self.detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+                # Each box represents a part of the image where a particular object was detected.
+                self.detection_boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
             
-            # Each score represent how level of confidence for each of the objects.
-            # Score is shown on the result image, together with the class label.
-            self.detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
-            self.detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
-            self.num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+                # Each score represent how level of confidence for each of the objects.
+                # Score is shown on the result image, together with the class label.
+                self.detection_scores = detection_graph.get_tensor_by_name('detection_scores:0')
+                self.detection_classes = detection_graph.get_tensor_by_name('detection_classes:0')
+                self.num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
     def get_classification(self, image):
         """Determines the color of the traffic light in the image
