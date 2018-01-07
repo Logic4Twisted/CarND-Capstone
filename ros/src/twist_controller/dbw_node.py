@@ -106,7 +106,7 @@ class DBWNode(object):
                 cte = dbw_helper.get_cross_track_error(self.final_waypoints, self.current_pose)
                 
                 # Node output calculations
-                 throttle, brake, steering = self.controller.control(linear_velocity_error, cte, duration_in_seconds)
+                throttle, brake, steering = self.controller.control(linear_velocity_error, cte, duration_in_seconds)
                 
                 # Publish
                 self.publish(throttle, brake, steering)
