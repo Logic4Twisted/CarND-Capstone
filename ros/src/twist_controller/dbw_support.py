@@ -1,5 +1,4 @@
 """
-"""
 Helper functions for dbw_node
 """
 
