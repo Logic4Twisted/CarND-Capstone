@@ -18,3 +18,17 @@ class LowPassFilter(object):
 
         self.last_val = val
         return val
+        
+class SmoothingFilter(object):
+    
+    def __init__(self, window_weight):
+        
+        self.last_val = 0
+        self.window_weight = window_weight
+        
+    
+    def get_smoothed_value(self, value):
+        
+        self.last_val = (self.window_weight * self.last_val) + ((1.0 - self.window_weight) * value)
+        return self.last_val
+        

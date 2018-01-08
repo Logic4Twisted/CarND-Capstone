@@ -15,16 +15,12 @@ from styx_msgs.msg import TrafficLightArray, TrafficLight
 
 '''
 This node will publish waypoints from the car's current position to some `x` distance ahead.
-
 As mentioned in the doc, you should ideally first implement a version which does not care
 about traffic lights or obstacles.
-
 Once you have created dbw_node, you will update this node to use the status of traffic lights too.
-
 Please note that our simulator also provides the exact location of traffic lights and their
 current status in `/vehicle/traffic_lights` message. You can use this message to build this node
 as well as to verify your TL classifier.
-
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
@@ -35,10 +31,10 @@ class WaypointUpdater(object):
     def __init__(self):
         rospy.init_node('waypoint_updater')
 
-        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb)
-        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb)
+        rospy.Subscriber('/current_pose', PoseStamped, self.pose_cb, queue_size=1)
+        rospy.Subscriber('/base_waypoints', Lane, self.waypoints_cb, queue_size=1)
 
-        rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb)
+        rospy.Subscriber('/traffic_waypoint', Int32, self.traffic_cb, queue_size=1)
 
         self.final_waypoints_pub = rospy.Publisher('final_waypoints', Lane, queue_size=1)
 
@@ -65,14 +61,14 @@ class WaypointUpdater(object):
         new_lane.header.stamp = rospy.Time(0)
         
         next_waypoint_idx = self.get_waypoint_ahead(self.current_pose, self.base_waypoints)
-        end_waypoint_idx = min(len(self.base_waypoints)-1, next_waypoint_idx+LOOKAHEAD_WPS)
+        end_waypoint_idx = next_waypoint_idx+LOOKAHEAD_WPS # min(len(self.base_waypoints)-1, next_waypoint_idx+LOOKAHEAD_WPS)
         new_waypoints = copy.deepcopy(self.base_waypoints[next_waypoint_idx:end_waypoint_idx])
         
         waypoints_to_light = self.traffic_light_wp_idx - 2 - next_waypoint_idx  # stop ahead with some buffer
         
-        if len(new_waypoints) < LOOKAHEAD_WPS: # reaching end of track
-            new_waypoints = self.decelerate(new_waypoints, len(new_waypoints)-1)
-        elif self.traffic_light_wp_idx != -1 and waypoints_to_light < LOOKAHEAD_WPS:
+        # if len(new_waypoints) < LOOKAHEAD_WPS: # reaching end of track
+        #     new_waypoints = self.decelerate(new_waypoints, len(new_waypoints)-1)
+        if self.traffic_light_wp_idx != -1 and waypoints_to_light < LOOKAHEAD_WPS:
             new_waypoints = self.decelerate(new_waypoints, waypoints_to_light)
         else:
             for i in range(len(new_waypoints)):
@@ -87,7 +83,8 @@ class WaypointUpdater(object):
             self.frame_id = waypoints.header.frame_id
 
     def traffic_cb(self, msg):
-        self.traffic_light_wp_idx = msg.data
+        # self.traffic_light_wp_idx = msg.data
+        pass
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later

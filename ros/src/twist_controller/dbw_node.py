@@ -103,7 +103,7 @@ class DBWNode(object):
                 # Linear velocity and cross track error calculations based on difference between 
                 # current Vs desired speed after x waypoints
                 linear_velocity_error = self.final_waypoints[1].twist.twist.linear.x - self.current_velocity.linear.x
-                cte = dbw_helper.get_cross_track_error(self.final_waypoints, self.current_pose)
+                cte = dbw_support.get_cross_track_error(self.final_waypoints, self.current_pose)
                 
                 # Node output calculations
                 throttle, brake, steering = self.controller.control(linear_velocity_error, cte, duration_in_seconds)
