@@ -60,9 +60,9 @@ class TLDetector(object):
     def traffic_cb(self, msg):
         self.lights = msg.lights
         for tl in msg.lights:
-            log.info(">>> %s", tl.state)
-            log.info(">>> position: %s, %s, %s", tl.pose.position.x, tl.pose.position.y, tl.pose.position.z)
-            log.info(">>> orient: %s, %s, %s, %s", tl.pose.orientation.x, tl.pose.orientation.y, tl.pose.position.z, tl.pose.position.w)
+            rospy.loginfo(">>> %s", tl.state)
+            rospy.loginfo(">>> position: %s, %s, %s", tl.pose.position.x, tl.pose.position.y, tl.pose.position.z)
+            rospy.loginfo(">>> orient: %s, %s, %s, %s", tl.pose.orientation.x, tl.pose.orientation.y, tl.pose.position.z, tl.pose.position.w)
 
 
     def image_cb(self, msg):
