@@ -128,7 +128,14 @@ class TLDetector(object):
         #Get classification
         return self.light_classifier.get_classification(cv_image)
         """
-        pass
+        for tl in self.lights:
+            if (distance(tl.pose.position, light.pose.position) < 0.001):
+                return tl.state
+        return TrafficLight.UNKNOWN
+
+    def distance(self, p1, p2):
+        x, y, z = p1.x - p2.x, p1.y - p2.y, p1.z - p2.z
+        return math.sqrt(x*x + y*y + z*z)
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
@@ -143,6 +150,7 @@ class TLDetector(object):
 
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
+        rospy.loginfo(">>> %s", type(stop_line_positions))
         if(self.pose):
             car_position = self.get_closest_waypoint(self.pose.pose)
 
