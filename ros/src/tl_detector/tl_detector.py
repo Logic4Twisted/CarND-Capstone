@@ -80,7 +80,7 @@ class TLDetector(object):
 	    if curr_dist < curr_min_distance:
 	        curr_min_distance = curr_dist
 		curr_closest_pos = pos
-	return pos
+	return curr_closest_pos
 
     def get_next_light_pose(self):
 	"""
