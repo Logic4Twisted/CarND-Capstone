@@ -60,6 +60,8 @@ class WaypointUpdater(object):
         new_lane.header.frame_id = self.frame_id
         new_lane.header.stamp = rospy.Time(0)
         
+	if self.base_waypoints is None:
+	    return
         next_waypoint_idx = self.get_waypoint_ahead(self.current_pose, self.base_waypoints)
         end_waypoint_idx = next_waypoint_idx+LOOKAHEAD_WPS # min(len(self.base_waypoints)-1, next_waypoint_idx+LOOKAHEAD_WPS)
         new_waypoints = copy.deepcopy(self.base_waypoints[next_waypoint_idx:end_waypoint_idx])
