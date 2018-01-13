@@ -24,7 +24,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 200 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 20 # Number of waypoints we will publish. You can change this number
 MAX_DECEL = 1.0
 
 class WaypointUpdater(object):
@@ -84,7 +84,7 @@ class WaypointUpdater(object):
 
     def traffic_cb(self, msg):
         # self.traffic_light_wp_idx = msg.data
-        pass
+		pass
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
