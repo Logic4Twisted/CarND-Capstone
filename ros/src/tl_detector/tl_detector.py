@@ -51,7 +51,20 @@ class TLDetector(object):
         self.last_wp = -1
         self.state_count = 0
 
-        rospy.spin()
+        self.loop()
+    
+    def loop(self):
+        rate = rospy.Rate(1)
+	while not rospy.is_shutdown():
+	     if self.pose is not None:
+		next_light_pose = self.get_next_light_pose()
+		rospy.loginfo("Next light pos %s, %s", next_light_pose.pose.position.x, next_light_pose.pose.position.y)
+	     	xy = self.get_closest_stop_line_position()
+	     	rospy.loginfo("Stop line pos %s, %s", xy[0], xy[1])
+	     	index = self.get_closest_waypoint_xy(xy)
+	     	rospy.loginfo("index = %s", index)
+	     	self.upcuming_red_light_publisher(Int32(index))
+	     rate.sleep()
 
     def pose_cb(self, msg):
         self.pose = msg
@@ -61,11 +74,6 @@ class TLDetector(object):
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
-        for tl in msg.lights:
-            rospy.loginfo(">>> %s", tl.state)
-            rospy.loginfo(">>> position: %s, %s, %s", tl.pose.pose.position.x, tl.pose.pose.position.y, tl.pose.pose.position.z)
-            rospy.loginfo(">>> orient: %s, %s, %s, %s", tl.pose.pose.orientation.x, tl.pose.pose.orientation.y, tl.pose.pose.orientation.z, tl.pose.pose.orientation.w)
-	
 
     def get_closest_stop_line_position(self, pose):
 	"""
@@ -152,6 +160,19 @@ class TLDetector(object):
         closest_idx = -1
         for idx, wp in enumerate(self.waypoints):
             dist = self.distance(pose.position, wp.pose.pose.position)
+            if dist < closest_dist:
+                closest_dist = dist
+                closest_idx = idx
+        return closest_idx
+    
+    def get_closest_waypoint_xy(self, xy):
+	closest_dist = 100000
+        closest_idx = -1
+	assert len(self.waypoints) > 0
+        for idx, wp in enumerate(self.waypoints):
+	    x = xy[0] - wp.pose.position.x
+	    y = xy[1] - wp.pose.position.y
+            dist = Math.sqrt(x*x + y*y)
             if dist < closest_dist:
                 closest_dist = dist
                 closest_idx = idx
