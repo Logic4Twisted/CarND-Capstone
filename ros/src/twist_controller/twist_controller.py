@@ -13,9 +13,9 @@ class Controller(object):
 		self.brake_pid = brake_pid
 		self.steering_pid = steering_pid
 		
-		self.throttle_filter = lowpass.SmoothingFilter(window_weight=0.79)
+		self.throttle_filter = lowpass.SmoothingFilter(window_weight=0.8)
 		self.brake_filter = lowpass.SmoothingFilter(window_weight=0.0)
-		self.steering_filter = lowpass.SmoothingFilter(window_weight=0.51)
+		self.steering_filter = lowpass.SmoothingFilter(window_weight=0.5)
 		
 	def control(self, linear_velocity_error, cte, sample_time):
 		# TODO: Change the arg, kwarg list to suit your needs
