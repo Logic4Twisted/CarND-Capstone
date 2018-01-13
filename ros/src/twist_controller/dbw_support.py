@@ -30,11 +30,11 @@ def get_cross_track_error(waypoints, current_pose):
 
     origin = waypoints[0].pose.pose.position
 
-    # Get waypoints into a matrix. shift them to origin
+    # Get waypoints into a matrix and shift them to origin
     wp_matrix = get_wp_coordinates_matrix(waypoints)
     shifted_wp_matrix = wp_matrix - np.array([origin.x, origin.y])
 
-    # Get angle a waypoint a bit in the future makes with x-origin
+    # Get angle form waypoints a bit in the future
     offset = 10
     angle = np.arctan2(shifted_wp_matrix[offset, 1], shifted_wp_matrix[offset, 0])
 
