@@ -24,7 +24,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 20 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 50 # Number of waypoints we will publish. You can change this number
 MAX_DECEL = 1.0
 
 class WaypointUpdater(object):
@@ -41,9 +41,11 @@ class WaypointUpdater(object):
         config_string = rospy.get_param("/traffic_light_config")
         self.config = yaml.load(config_string)
         self.base_waypoints = None
+        self.len_base_waypoints = None
         self.current_pose = None
         self.current_yaw = None
         self.max_speed = self.kmph2mps(rospy.get_param('/waypoint_loader/velocity'))
+        #self.max_speed = 2.5
         # By default, index value of -1 means traffic light is NOT red
         self.traffic_light_wp_idx = -1
         self.frame_id = None
@@ -60,16 +62,17 @@ class WaypointUpdater(object):
         new_lane.header.frame_id = self.frame_id
         new_lane.header.stamp = rospy.Time(0)
         
-	if self.base_waypoints is None:
-	    return
         next_waypoint_idx = self.get_waypoint_ahead(self.current_pose, self.base_waypoints)
-        end_waypoint_idx = next_waypoint_idx+LOOKAHEAD_WPS # min(len(self.base_waypoints)-1, next_waypoint_idx+LOOKAHEAD_WPS)
-        new_waypoints = copy.deepcopy(self.base_waypoints[next_waypoint_idx:end_waypoint_idx])
+        next_waypoint_idx = next_waypoint_idx%self.len_base_waypoints
+        new_waypoints = []
+        for i in range(LOOKAHEAD_WPS):
+            waypoint_idx = (next_waypoint_idx + i)%self.len_base_waypoints
+            new_waypoints.append(self.base_waypoints[waypoint_idx])
         
-        waypoints_to_light = self.traffic_light_wp_idx - 2 - next_waypoint_idx  # stop ahead with some buffer
+        waypoints_to_light = self.traffic_light_wp_idx - 5 - next_waypoint_idx  # stop ahead with some buffer
+        if waypoints_to_light < 0:
+            waypoints_to_light = self.traffic_light_wp_idx + self.len_base_waypoints - 5 - next_waypoint_idx
         
-        # if len(new_waypoints) < LOOKAHEAD_WPS: # reaching end of track
-        #     new_waypoints = self.decelerate(new_waypoints, len(new_waypoints)-1)
         if self.traffic_light_wp_idx != -1 and waypoints_to_light < LOOKAHEAD_WPS:
             new_waypoints = self.decelerate(new_waypoints, waypoints_to_light)
         else:
@@ -78,15 +81,16 @@ class WaypointUpdater(object):
         
         new_lane.waypoints = new_waypoints
         self.final_waypoints_pub.publish(new_lane)
-        
+
     def waypoints_cb(self, waypoints):
         if self.base_waypoints is None:
             self.base_waypoints = copy.deepcopy(waypoints.waypoints)
+            self.len_base_waypoints = len(self.base_waypoints)
             self.frame_id = waypoints.header.frame_id
 
     def traffic_cb(self, msg):
-        # self.traffic_light_wp_idx = msg.data
-		pass
+        self.traffic_light_wp_idx = msg.data
+		# pass
 
     def obstacle_cb(self, msg):
         # TODO: Callback for /obstacle_waypoint message. We will implement it later
