@@ -45,7 +45,7 @@ class DBWNode(object):
         max_lat_accel = rospy.get_param('~max_lat_accel', 3.)
         max_steer_angle = rospy.get_param('~max_steer_angle', 8.)
         
-        self.is_drive_by_wire_enable = False
+        self.is_dbw_enabled = False
         self.last_twist_command = None
         self.current_velocity = None
         self.current_pose = None
@@ -70,10 +70,10 @@ class DBWNode(object):
 
         # TODO: Subscribe to all the topics you need to
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_commands_cb, queue_size=1)
-        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.drive_by_wire_enabled_cb)
+        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enabled_cb)
         rospy.Subscriber('/current_velocity', TwistStamped, self.current_velocity_cb, queue_size=1)
         rospy.Subscriber('/current_pose', geometry_msgs.msg.PoseStamped, self.current_pose_cb, queue_size=1)
-        rospy.Subscriber('/final_waypoints', styx_msgs.msg.Lane, self.final_waypoints_cb, queue_size=1)
+        rospy.Subscriber('/final_waypoints', styx_msgs.msg.Lane, self.final_wp_cb, queue_size=1)
 
         self.loop()
 
@@ -93,7 +93,7 @@ class DBWNode(object):
             data = [self.last_twist_command, self.current_velocity, self.current_pose, self.final_waypoints]
             data_ready = all([x is not None for x in data])
             
-            if self.is_drive_by_wire_enable and data_ready:
+            if self.is_dbw_enabled and data_ready:
                 
                 current_time = rospy.get_rostime()
                 ros_duration = current_time - self.previous_loop_time
@@ -131,27 +131,27 @@ class DBWNode(object):
         bcmd.pedal_cmd = brake
         self.brake_pub.publish(bcmd)
         
-    def twist_commands_cb(self, msg):
-
-        self.last_twist_command = msg.twist
-
-    def drive_by_wire_enabled_cb(self, msg):
-
-        self.is_drive_by_wire_enable = bool(msg.data)
-
-        if self.is_drive_by_wire_enable is True:
-
-            self.throttle_pid.reset()
-            self.brake_pid.reset()
-            self.steering_pid.reset()
-
     def current_velocity_cb(self, msg):
         self.current_velocity = msg.twist
 
     def current_pose_cb(self, msg):
         self.current_pose = msg.pose
 
-    def final_waypoints_cb(self, msg):
+    def twist_commands_cb(self, msg):
+
+        self.last_twist_command = msg.twist
+
+    def dbw_enabled_cb(self, msg):
+
+        self.is_dbw_enabled = bool(msg.data)
+
+        if self.is_dbw_enabled is True:
+
+            self.throttle_pid.reset()
+            self.brake_pid.reset()
+            self.steering_pid.reset()
+
+    def final_wp_cb(self, msg):
         self.final_waypoints = msg.waypoints
 
 
